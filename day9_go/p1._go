@@ -1,0 +1,81 @@
+package main
+
+import (
+	"io/ioutil"
+	"log"
+)
+
+import (
+	"fmt"
+	"strings"
+)
+
+func repeat(v int, n int) []int {
+	array := make([]int, n)
+	for i := range array {
+		array[i] = v
+	}
+	return array
+}
+
+func charToInt(c rune) int {
+	return int(c) - 48
+}
+
+func main() {
+	data, err := ioutil.ReadFile("input.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	content := strings.TrimSpace(string(data))
+
+	explodedDisk := []int{}
+	
+	isFile := true
+	fileId := 0
+
+	for _, char := range content {
+		if isFile {
+			explodedDisk = append(explodedDisk, repeat(fileId, charToInt(char))...)
+			isFile = false
+			fileId += 1
+		} else {
+			explodedDisk = append(explodedDisk, repeat(-1, charToInt(char))...)
+			isFile = true
+		}
+	}
+	fmt.Println(explodedDisk)
+
+	l := 0
+	r := len(explodedDisk) - 1
+
+	for l < r {
+		lv := explodedDisk[l]
+		rv := explodedDisk[r]
+
+		if lv != -1 {
+			l += 1
+			continue
+		}
+		if rv == -1 {
+			r -= 1
+			continue
+		}
+		explodedDisk[l] = rv
+		explodedDisk[r] = -1
+
+		l += 1
+		r -= 1
+	}
+
+	fmt.Println(explodedDisk)
+
+	sum := 0
+	for i, v := range explodedDisk {
+		if v == -1 { break }
+		sum += i * v
+	}
+
+	fmt.Println(sum)
+
+}
